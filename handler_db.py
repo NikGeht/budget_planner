@@ -29,16 +29,21 @@ Session = sqlalchemy.orm.sessionmaker()
 Session.configure(bind=engine)
 session = Session()
 
-def selectAll():
-    all_exp = session.query(User).all()
-    print(all_exp)
+def selectAll(id):
+    all_exp = session.query(IncExp).filter(IncExp.owner == id).all()
+    return all_exp
 
-selectAll()
+def selectAllFromCategory(id, category_name):
+    all_exp = session.query(IncExp).filter(IncExp.owner == id, IncExp.category_name == category_name).all()
+    return all_exp
 
 def validUser(login, password):
-    if session.query(User).filter(User.login == login, User.password == password).one():
-        return True
-    else:
+    try:
+        if session.query(User).filter(User.login == login, User.password == password).one():
+            return True
+        else:
+            return False
+    except sqlalchemy.exc.NoResultFound as e:
         return False
 
 def createUser(login, password, email):
@@ -49,7 +54,7 @@ def createUser(login, password, email):
 
 def getIdUser(login):
     id = session.query(User.id).filter(User.login == login).one()
-    return id
+    return id[0]
 
 def setMoney(money, login):
     session.query(User).filter(User.login == login).update({'money': money})
@@ -80,6 +85,9 @@ def changeNote(id, category_name, cost, owner, data=None):
 def getBalance(login):
     id = getIdUser(login)
     res = session.query(IncExp).filter(IncExp.owner == id).all()
-    money = getMoney(login)
-    print(res)
-    print(money)
+    summa = 0
+    for i in res:
+        summa += i.cost
+    money = getMoney(login)[0]
+    
+    return summa + money
