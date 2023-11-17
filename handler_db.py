@@ -30,7 +30,7 @@ Session.configure(bind=engine)
 session = Session()
 
 def selectAll():
-    all_exp = session.query(IncExp).all()
+    all_exp = session.query(User).all()
     print(all_exp)
 
 selectAll()
@@ -44,6 +44,7 @@ def validUser(login, password):
 def createUser(login, password, email):
     new_user = User(login=login, password=password, email=email)
     session.add(new_user)
+    print(f"Пользователь успешно добавлен с данными: {new_user.login}, {new_user.password}, {new_user.email}")
     session.commit()
 
 def getIdUser(login):
@@ -60,6 +61,7 @@ def getMoney(login):
 
 def setPassword(login, password):
     session.query(User).filter(User.login == login).update({'password': password})
+    session.commit()
 
 def createNote(category_name, cost, owner, data=None):
     Note = IncExp(category_name=category_name, cost=cost, owner=owner)
