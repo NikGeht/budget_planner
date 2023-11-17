@@ -34,3 +34,25 @@ def selectAll():
     print(all_exp)
 
 selectAll()
+
+def createUser(login, password, email):
+    new_user = User(login=login, password=password, email=email)
+    session.add(new_user)
+    session.commit()
+
+def setMoney(money, login):
+    session.query(User).filter(User.login == login).update({'money': money})
+    session.commit()
+
+def getMoney(login):
+    money = session.query(User.money).filter(User.login == login).first()
+    return money
+
+def setPassword(login, password):
+    session.query(User).filter(User.login == login).update({'password': password})
+
+def createNote(category_name, cost, owner, data=None):
+    Note = IncExp(category_name=category_name, cost=cost, owner=owner)
+    session.add(Note)
+    session.commit()
+
