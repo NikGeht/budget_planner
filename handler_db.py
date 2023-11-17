@@ -56,3 +56,11 @@ def createNote(category_name, cost, owner, data=None):
     session.add(Note)
     session.commit()
 
+def deleteNote(id):
+    Note = session.query(IncExp).filter(IncExp.id == id).one()
+    session.delete(Note)
+    session.commit()
+
+def changeNote(id, category_name, cost, owner, data=None):
+    session.query(IncExp).filter(IncExp.id == id).update({"category_name": category_name, "cost": cost, "owner": owner})
+    session.commit()
