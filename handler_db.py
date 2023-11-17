@@ -35,10 +35,20 @@ def selectAll():
 
 selectAll()
 
+def validUser(login, password):
+    if session.query(User).filter(User.login == login, User.password == password).one():
+        return True
+    else:
+        return False
+
 def createUser(login, password, email):
     new_user = User(login=login, password=password, email=email)
     session.add(new_user)
     session.commit()
+
+def getIdUser(login):
+    id = session.query(User.id).filter(User.login == login).one()
+    return id
 
 def setMoney(money, login):
     session.query(User).filter(User.login == login).update({'money': money})
@@ -64,3 +74,10 @@ def deleteNote(id):
 def changeNote(id, category_name, cost, owner, data=None):
     session.query(IncExp).filter(IncExp.id == id).update({"category_name": category_name, "cost": cost, "owner": owner})
     session.commit()
+
+def getBalance(login):
+    id = getIdUser(login)
+    res = session.query(IncExp).filter(IncExp.owner == id).all()
+    money = getMoney(login)
+    print(res)
+    print(money)
