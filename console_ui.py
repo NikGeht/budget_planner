@@ -60,7 +60,18 @@ def mainMenu():
 
         match choice:
             case 1:
-                print
+                print("Введите название категории")
+                category_name = input("< ")
+                print("Введите стоимость(доход или расход)")
+                cost = int(input("< "))
+                owner = handler_db.getIdUser(login=login)
+                handler_db.createNote(category_name=category_name, cost=cost, owner=owner)
+                print("Запись успешно добавлена")
+
+            case 2:
+
+
+
 
     
 
