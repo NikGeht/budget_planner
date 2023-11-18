@@ -63,10 +63,9 @@ def mainMenu():
             print("2. Изменение записи")
             print("3. Удаление записи")
             print("4. Изменить пароль пользователя")
-            print("5. Установить значение баланса")
-            print("6. Запросить баланс(доходы + расходы)")
-            print("7. Вывод всех записей")
-            print("8. Вывести определенную категорию")
+            print("5. Запросить баланс(доходы + расходы)")
+            print("6. Вывод всех записей")
+            print("7. Вывести определенную категорию")
             print("20. Выход")
 
 
@@ -109,29 +108,23 @@ def mainMenu():
                     print("Пароль успешно изменен")
                 
                 case 5:
-                    print("Введите начальное количество денежных средств")
-                    money = int(input("< "))
-                    handler_db.setMoney(money, login)
-                
-                case 6:
 
                     money = handler_db.getBalance(login)
                     print("На данный ваши доходы и расходы суммарно равны: ", money)
                     pause = input()
 
-                case 7:
+                case 6:
 
                     id = handler_db.getIdUser(login)
                     result = handler_db.selectAll(id)
                     for i in result:
-                        
                         print("id: ", i.id, i.category_name)
                         print(i.cost)
                         print(i.created_at)
                         print("")
                     pause = input()
 
-                case 8:
+                case 7:
                     id = handler_db.getIdUser(login)
                     res = handler_db.selectAll(id)
                     print("Напишите выбранную категорию")
@@ -142,7 +135,6 @@ def mainMenu():
                     category = input()
                     res = handler_db.selectAllFromCategory(id, category)
                     for i in res:
-                        
                         print("id: ", i.id, i.category_name)
                         print(i.cost)
                         print(i.created_at)

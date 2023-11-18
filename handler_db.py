@@ -21,7 +21,6 @@ class User(Base):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     login = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     password = sqlalchemy.Column(sqlalchemy.Text)
-    money = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, default=0)
     email = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
 
 Base.metadata.create_all(engine)
@@ -56,14 +55,6 @@ def getIdUser(login):
     id = session.query(User.id).filter(User.login == login).one()
     return id[0]
 
-def setMoney(money, login):
-    session.query(User).filter(User.login == login).update({'money': money})
-    session.commit()
-
-def getMoney(login):
-    money = session.query(User.money).filter(User.login == login).first()
-    return money
-
 def setPassword(login, password):
     session.query(User).filter(User.login == login).update({'password': password})
     session.commit()
@@ -88,6 +79,5 @@ def getBalance(login):
     summa = 0
     for i in res:
         summa += i.cost
-    money = getMoney(login)[0]
     
-    return summa + money
+    return summa
