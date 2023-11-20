@@ -1,11 +1,11 @@
-
 import sqlalchemy
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 
-engine  = sqlalchemy.create_engine('postgresql://ngeht:pahan244@localhost:5432/budget_planner')
+engine = sqlalchemy.create_engine('postgresql://ngeht:pahan244@localhost:5432/budget_planner')
 
 Base = declarative_base()
+
 
 class IncExp(Base):
     __tablename__ = 'inc_exp'
@@ -16,6 +16,7 @@ class IncExp(Base):
     created_at = sqlalchemy.Column(sqlalchemy.DateTime(timezone=True), default=func.now())
     owner = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"), nullable=False)
 
+
 class User(Base):
     __tablename__ = 'user'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -23,61 +24,84 @@ class User(Base):
     password = sqlalchemy.Column(sqlalchemy.Text)
     email = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
 
+
 Base.metadata.create_all(engine)
 Session = sqlalchemy.orm.sessionmaker()
 Session.configure(bind=engine)
 session = Session()
 
-def selectAll(id):
-    all_exp = session.query(IncExp).filter(IncExp.owner == id).all()
+
+def select_all(user_id: int) -> list:
+    """Get all notes where owner is user"""
+    all_exp: list = session.query(IncExp).filter(user_id == IncExp.owner).all()
     return all_exp
 
-def selectAllFromCategory(id, category_name):
-    all_exp = session.query(IncExp).filter(IncExp.owner == id, IncExp.category_name == category_name).all()
+
+def select_all_from_category(user_id: int, category_name: str) -> list:
+    """Get all notes with user-defined category where owner is user"""
+    all_exp: list = session.query(IncExp).filter(user_id == IncExp.owner, category_name == IncExp.category_name).all()
     return all_exp
 
-def validUser(login, password):
+
+def valid_user(login: str, password: str) -> bool:
+    """Check user's conf data on exist in database"""
     try:
-        if session.query(User).filter(User.login == login, User.password == password).one():
+        if session.query(User).filter(login == User.login, password == User.password).one():
             return True
         else:
             return False
     except sqlalchemy.exc.NoResultFound as e:
         return False
 
-def createUser(login, password, email):
+
+def create_user(login: str, password: str, email: str) -> None:
+    """Creating user in database"""
     new_user = User(login=login, password=password, email=email)
     session.add(new_user)
     print(f"Пользователь успешно добавлен с данными: {new_user.login}, {new_user.password}, {new_user.email}")
     session.commit()
 
-def getIdUser(login):
-    id = session.query(User.id).filter(User.login == login).one()
-    return id[0]
 
-def setPassword(login, password):
-    session.query(User).filter(User.login == login).update({'password': password})
+def get_id_user(login: str) -> int:
+    """Getter for user's id"""
+    user_id = session.query(User.id).filter(login == User.login).one()
+    return user_id[0]
+
+
+def set_password(login: str, password: str) -> None:
+    """Update password for users"""
+    session.query(User).filter(login == User.login).update({'password': password})
     session.commit()
 
-def createNote(category_name, cost, owner, data=None):
-    Note = IncExp(category_name=category_name, cost=cost, owner=owner)
-    session.add(Note)
+
+def create_note(category_name: str, cost: int, owner: int, data=None) -> None:
+    """Create new methods with attributes"""
+    new_note = IncExp(category_name=category_name, cost=cost, owner=owner)
+    session.add(new_note)
     session.commit()
 
-def deleteNote(id):
-    Note = session.query(IncExp).filter(IncExp.id == id).one()
-    session.delete(Note)
+
+def delete_note(note_id: int) -> None:
+    """Delete user note by id"""
+    note = session.query(IncExp).filter(note_id == IncExp.id).one()
+    session.delete(note)
     session.commit()
 
-def changeNote(id, category_name, cost, owner, data=None):
-    session.query(IncExp).filter(IncExp.id == id).update({"category_name": category_name, "cost": cost, "owner": owner})
+
+def change_note(note_id: int, category_name: str, cost: int, owner: int, data=None) -> None:
+    """Change user note with attributes"""
+    session.query(IncExp).filter(note_id == IncExp.id).update({"category_name": category_name,
+                                                               "cost": cost,
+                                                               "owner": owner})
     session.commit()
 
-def getBalance(login):
-    id = getIdUser(login)
-    res = session.query(IncExp).filter(IncExp.owner == id).all()
-    summa = 0
-    for i in res:
-        summa += i.cost
-    
-    return summa
+
+def get_balance(login: str) -> int:
+    """Get user's balance (sum all expense and income)"""
+    user_id: int = get_id_user(login)
+    all_notes: list = session.query(IncExp).filter(user_id == IncExp.owner).all()
+    balance: int = 0
+    for note in all_notes:
+        balance += note.cost
+
+    return balance
